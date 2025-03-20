@@ -104,7 +104,7 @@ class SidebarContent extends Component {
 
             <li>
               <Link to="/dashboard" className="waves-effect">
-                <i className="ri-dashboard-line"></i><span className="badge rounded-pill bg-success float-end">3</span>
+                <i className="ri-dashboard-line"></i>
                 <span className="ms-1">{this.props.t('Dashboard')}</span>
               </Link>
             </li>

@@ -24,9 +24,10 @@ class Dashboard extends Component {
                 { title : "Dashboard", link : "#" },
             ],
             reports : [
-                { icon : "ri-stack-line", title : "Number of Sales", value : "1452", rate : "2.4%", desc : "From previous period" },
-                { icon : "ri-store-2-line", title : "Sales Revenue", value : "$ 38452", rate : "2.4%", desc : "From previous period" },
-                { icon : "ri-briefcase-4-line", title : "Average Price", value : "$ 15.4", rate : "2.4%", desc : "From previous period" },
+                { icon : "ri-stack-line", title : "Total Groups", value : "4" },
+                { icon : "ri-store-2-line", title : "Total Courses", value : "17" },
+                { icon : "ri-briefcase-4-line", title : "Total Subjects", value : "5" },
+                { icon : "ri-briefcase-4-line", title : "Total Documentations", value : "7" },
             ]
         }
     }
@@ -39,41 +40,32 @@ class Dashboard extends Component {
 
                     <Breadcrumbs title="Dashboard" breadcrumbItems={this.state.breadcrumbItems} />
                         <Row>
-                            <Col xl={8}>
+                            <Col xl={12} lg={12}>
                                 <Row>
                                     <MiniWidgets reports={this.state.reports} />
                                 </Row>
-                                {/* revenue Analytics */}
-                                <RevenueAnalytics />
+                                {/* <RevenueAnalytics /> */}
                             </Col>
 
-                            <Col xl={4}>
-                                {/* sales Analytics */}
+                            {/* <Col xl={4}>
                                 <SalesAnalytics/>
 
-                                {/* earning reports */}
                                 <EarningReports/>
-                            </Col>
+                            </Col> */}
                         </Row>
                         
-                        <Row>
-                            {/* sources */}
+                        {/* <Row>
                             <Sources/>
-
-                            {/* recent activity */}
                             <RecentlyActivity/>
 
-                            {/* revenue by locations */}
                             <RevenueByLocations/>
                         </Row>
 
                         <Row>
-                            {/* chat box */}
                             <ChatBox/>
 
-                            {/* latest transactions */}
                             <LatestTransactions/>
-                        </Row>
+                        </Row> */}
 
                     </Container> 
                 </div>

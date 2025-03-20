@@ -97,12 +97,9 @@ const TableContainer = ({
       initialState: {
         pageIndex: 0,
         pageSize: customPageSize,
-        sortBy: [
-          {
-            desc: true,
-          },
-        ],
+        sortBy: [],
       },
+      autoResetSortBy: false,
     },
     useGlobalFilter,
     useFilters,
