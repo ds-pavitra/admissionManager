@@ -18,7 +18,7 @@ function* loginUser({ payload: { user, history } }) {
         if (response.status === 200) {
             localStorage.setItem("authUser", JSON.stringify(response));
             yield put(loginUserSuccessful(response));
-            history('/admission-form'); // Redirect on success
+            history('/dashboard'); // Redirect on success
         } else {
             yield put(apiError(response.message || "Login failed. Please try again."));
         }

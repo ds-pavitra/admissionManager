@@ -100,6 +100,12 @@ import ForgetPwd1 from "../pages/AuthenticationInner/ForgetPassword";
 // Admission Form Component
 import AdmissionForm from "../pages/AdmissionForm/AdmissionForm";
 
+// Masters
+import CourseMaster from "../pages/Masters/courseMaster";
+import SubjectMaster from "../pages/Masters/subjectMaster";
+import GroupMaster from "../pages/Masters/groupMaster";
+import DocumentMaster from "../pages/Masters/documentMaster";
+
 const authProtectedRoutes = [
 
 	// Tables
@@ -185,6 +191,14 @@ const authProtectedRoutes = [
 
 	//admission form
 	{ path: "/admission-form", component: <AdmissionForm /> },
+
+
+	//masters
+	{ path: "/course-master", component: <CourseMaster /> },
+	{ path: "/subject-master", component: <SubjectMaster /> },
+	{ path: "/group-master", component: <GroupMaster /> },
+	{ path: "/document-master", component: <DocumentMaster /> },
+
 
 
 	// this route should be at the end of all other routes

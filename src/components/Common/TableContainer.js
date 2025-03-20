@@ -10,7 +10,7 @@ import {
   usePagination,
 } from "react-table";
 import { Table, Row, Col, Button, Input } from "reactstrap";
-import { Filter, DefaultColumnFilter } from "./filters";
+import { DefaultColumnFilter } from "./filters";
 import JobListGlobalFilter from "../../components/Common/GlobalSearchFilter";
 
 // Define a default UI for filtering
@@ -119,15 +119,15 @@ const TableContainer = ({
     setPageSize(Number(event.target.value));
   };
 
-  const onChangeInInput = (event) => {
-    const page = event.target.value ? Number(event.target.value) - 1 : 0;
-    gotoPage(page);
-  };
+  // const onChangeInInput = (event) => {
+  //   const page = event.target.value ? Number(event.target.value) - 1 : 0;
+  //   gotoPage(page);
+  // };
 
   return (
     <Fragment>
       <Row className="mb-2">
-        <Col md={customPageSizeOptions ? 2 : 1}>
+        {/* <Col md={customPageSizeOptions ? 2 : 1}>
           <select
             className="form-select"
             value={pageSize}
@@ -135,11 +135,11 @@ const TableContainer = ({
           >
             {[10, 20, 30, 40, 50].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
-                Show {pageSize}
+                {pageSize}
               </option>
             ))}
           </select>
-        </Col>
+        </Col> */}
         {isGlobalFilter && (
           <GlobalFilter
             preGlobalFilteredRows={preGlobalFilteredRows}
@@ -205,12 +205,18 @@ const TableContainer = ({
               return (
                 <tr key={key} {...restHeaderGroupProps}>
                   {headerGroup.headers.map((column) => (
-                    <th key={column.id}>
+                    <th
+                      key={column.id}
+                      {...column.getHeaderProps()}
+                      style={{
+                        width: column.id === "actions" ? "20%" : "auto",
+                        textAlign: "center",
+                      }}
+                    >
                       <div className="mb-2" {...column.getSortByToggleProps()}>
                         {column.render("Header")}
                         {generateSortingIndicator(column)}
                       </div>
-                      <Filter column={column} />
                     </th>
                   ))}
                 </tr>
@@ -226,16 +232,18 @@ const TableContainer = ({
               return (
                 <Fragment key={key}>
                   <tr {...restRowProps}>
-                    {row.cells.map((cell) => {
-                      const cellProps = cell.getCellProps();
-                      const { key, ...restCellProps } = cellProps;
-
-                      return (
-                        <td key={key} {...restCellProps}>
-                          {cell.render("Cell")}
-                        </td>
-                      );
-                    })}
+                    {row.cells.map((cell) => (
+                      <td
+                        key={cell.column.id}
+                        {...cell.getCellProps()}
+                        style={{
+                          width: cell.column.id === "actions" ? "20%" : "auto",
+                          textAlign: "center",
+                        }}
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    ))}
                   </tr>
                 </Fragment>
               );
@@ -243,58 +251,73 @@ const TableContainer = ({
           </tbody>
         </Table>
       </div>
+            
 
-      <Row className="justify-content-md-end justify-content-center align-items-center">
-        <Col className="col-md-auto">
-          <div className="d-flex gap-1">
+      <Row className="justify-content-space-between align-items-center mt-3">
+        <Col md={customPageSizeOptions ? 2 : 1}>
+          <select
+            className="form-select"
+            value={pageSize}
+            onChange={onChangeInSelect}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                {pageSize}
+              </option>
+            ))}
+          </select>
+        </Col>
+        <Col md="10" className="col-auto d-flex justify-content-center">
+          <div className="pagination d-flex align-items-center">
             <Button
-              color="primary"
+              color="link"
+              className="text-decoration-none"
               onClick={() => gotoPage(0)}
               disabled={!canPreviousPage}
             >
-              {"<<"}
+              First
             </Button>
             <Button
-              color="primary"
+              color="link"
+              className="text-decoration-none"
               onClick={previousPage}
               disabled={!canPreviousPage}
             >
-              {"<"}
+              Previous
             </Button>
-          </div>
-        </Col>
-        <Col className="col-md-auto d-none d-md-block">
-          Page{" "}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>
-        </Col>
-        <Col className="col-md-auto">
-          <Input
-            type="number"
-            min={1}
-            style={{ width: 70 }}
-            max={pageOptions.length}
-            defaultValue={pageIndex + 1}
-            onChange={onChangeInInput}
-          />
-        </Col>
 
-        <Col className="col-md-auto">
-          <div className="d-flex gap-1">
-            <Button color="primary" onClick={nextPage} disabled={!canNextPage}>
-              {">"}
+            {pageOptions.map((page, index) => (
+              <Button
+                key={index}
+                color={pageIndex === index ? "primary" : "link"}
+                className={`mx-1 px-3 rounded-circle ${pageIndex === index ? "active" : ""
+                  }`}
+                onClick={() => gotoPage(index)}
+              >
+                {index + 1}
+              </Button>
+            ))}
+
+            <Button
+              color="link"
+              className="text-decoration-none"
+              onClick={nextPage}
+              disabled={!canNextPage}
+            >
+              Next
             </Button>
             <Button
-              color="primary"
+              color="link"
+              className="text-decoration-none"
               onClick={() => gotoPage(pageCount - 1)}
               disabled={!canNextPage}
             >
-              {">>"}
+              Last
             </Button>
           </div>
         </Col>
       </Row>
+
     </Fragment>
   );
 };

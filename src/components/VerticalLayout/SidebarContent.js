@@ -102,19 +102,32 @@ class SidebarContent extends Component {
           <ul className="metismenu list-unstyled" id="side-menu">
             <li className="menu-title">{this.props.t('Menu')}</li>
 
-            {/* <li>
+            <li>
               <Link to="/dashboard" className="waves-effect">
                 <i className="ri-dashboard-line"></i><span className="badge rounded-pill bg-success float-end">3</span>
                 <span className="ms-1">{this.props.t('Dashboard')}</span>
               </Link>
-            </li> */}
+            </li>
 
             <li>
+              <Link to="/#" className="has-arrow waves-effect">
+                <i className="ri-store-2-line"></i>
+                <span className="ms-1">{this.props.t('Masters')}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li><Link to="/course-master">{this.props.t('Courses')}</Link></li>
+                <li><Link to="/subject-master">{this.props.t('Subjects')}</Link></li>
+                <li><Link to="/group-master">{this.props.t('Groups')}</Link></li>
+                <li><Link to="/document-master">{this.props.t('Documents')}</Link></li>
+              </ul>
+            </li>
+
+            {/* <li>
               <Link to="/admission-form" className=" waves-effect">
                 <i className="dripicons-document"></i>
                 <span className="ms-1">{this.props.t('Admission Form')}</span>
               </Link>
-            </li>
+            </li> */}
 
             {/* <li>
               <Link to="/calendar" className=" waves-effect">
