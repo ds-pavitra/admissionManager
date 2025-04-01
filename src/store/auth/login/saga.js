@@ -1,13 +1,14 @@
 import { takeEvery, fork, put, all, call } from 'redux-saga/effects';
 
 // Login Redux States
-import { CHECK_LOGIN, LOGOUT_USER, VERIFY_EMAIL } from './actionTypes';
-import { apiError, loginUserSuccessful, logoutUserSuccess, verifyEmailSuccess, verifyEmailFailure } from './actions';
+import { CHECK_LOGIN, LOGOUT_USER, VERIFY_EMAIL, UPDATE_PASSWORD } from './actionTypes';
+import { apiError, loginUserSuccessful, logoutUserSuccess, verifyEmailSuccess, verifyEmailFailure, updatePasswordSuccess, updatePasswordFailure } from './actions';
 
 import { apiBaseUrl, apiRequestAsync } from "../../../common/data/userData";
 
 const loginUrl = `${apiBaseUrl}/login`;
 const verifyEmailUrl = `${apiBaseUrl}/email/check`;
+const updatePasswordUrl = `${apiBaseUrl}/password/update`;
 
 // Verify Email Saga
 function* verifyEmail({ payload: { email, callback } }) {
@@ -15,16 +16,49 @@ function* verifyEmail({ payload: { email, callback } }) {
         const response = yield call(apiRequestAsync, 'POST', verifyEmailUrl, { email });
 
         if (response.status === 200) {
-            yield put(verifyEmailSuccess());
-            callback(); // Proceed to show password input on success
+            console.log('Email exists:', response.result);
+
+            if (response.result.user_status === 0) {
+                // If user_status is 0, show the new password form
+                yield put(verifyEmailSuccess());
+                callback('new_password');
+            } else if (response.result.user_status === 1) {
+                // If user_status is 1, show the password input for login
+                yield put(verifyEmailSuccess());
+                callback('login');
+            } else {
+                // Handle other cases if needed
+                callback('error');
+            }
         } else {
             yield put(verifyEmailFailure(response.message || "Email verification failed."));
+            callback('error');
         }
     } catch (error) {
         yield put(verifyEmailFailure(error.message || "Error verifying email."));
+        callback('error');
     }
 }
 
+// Update Password Saga
+function* updatePassword({ payload: { passwordData, callback } }) {
+    try {
+        const response = yield call(apiRequestAsync, 'POST', updatePasswordUrl, passwordData);
+
+        if (response.status === 200) {
+            yield put(updatePasswordSuccess());
+            callback(true); // On success, callback to redirect to login
+        } else {
+            yield put(updatePasswordFailure(response.message || "Password update failed."));
+            callback(false); // On failure, handle the callback
+        }
+    } catch (error) {
+        yield put(updatePasswordFailure(error.message || "Error updating password."));
+        callback(false);
+    }
+}
+
+// Login User Saga
 function* loginUser({ payload: { user, history } }) {
     try {
         const response = yield call(apiRequestAsync, 'POST', loginUrl, { email: user.email, password: user.password });
@@ -41,6 +75,7 @@ function* loginUser({ payload: { user, history } }) {
     }
 }
 
+// Logout User Saga
 function* logoutUser({ payload: { history } }) {
     try {
         localStorage.removeItem("authUser");
@@ -51,6 +86,7 @@ function* logoutUser({ payload: { history } }) {
     }
 }
 
+// Watchers
 export function* watchVerifyEmail() {
     yield takeEvery(VERIFY_EMAIL, verifyEmail);
 }
@@ -63,11 +99,17 @@ export function* watchUserLogout() {
     yield takeEvery(LOGOUT_USER, logoutUser);
 }
 
+export function* watchUpdatePassword() {
+    yield takeEvery(UPDATE_PASSWORD, updatePassword);
+}
+
+// Root Saga
 function* loginSaga() {
     yield all([
         fork(watchVerifyEmail),
         fork(watchUserLogin),
         fork(watchUserLogout),
+        fork(watchUpdatePassword),
     ]);
 }
 

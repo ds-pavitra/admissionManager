@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
 
 // actions
-import { checkLogin, apiError, verifyEmail } from '../../store/actions';
+import { checkLogin, apiError, verifyEmail, updatePassword } from '../../store/actions';
 
 // import images
 import cubicleLogo from "../../assets/images/cubicleLogo.png";
@@ -18,6 +18,10 @@ import withRouter from '../../components/Common/withRouter';
 
 const Login = ({ router }) => {
     const [showPasswordInput, setShowPasswordInput] = useState(false);
+    const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [email, setEmail] = useState('');
 
     const dispatch = useDispatch();
     const loginError = useSelector(state => state.Login.loginError);
@@ -31,33 +35,44 @@ const Login = ({ router }) => {
         };
     }, [dispatch]);
 
-    // Handle email submission
     const handleEmailSubmit = (event, values) => {
         event.preventDefault();
-        dispatch(verifyEmail(values.email, (success) => {
-            if (success) {
-                setShowPasswordInput(true); // Show password input if email is verified
-            } else {
-                setShowPasswordInput(false); // Hide password input or show error if email verification fails
-            }
-        }));
+        setEmail(values.email);
+        dispatch(verifyEmail(values.email, handleVerificationResponse));
     };
-    
 
-    // Callback after email verification
-    // const onEmailVerified = (success) => {
-    //     console.log('Email verification success:', success); // Debugging the success value
-    //     if (success) {
-    //         setShowPasswordInput(true); // Show password input if email verification is successful
-    //     } else {
-    //         setShowPasswordInput(false); // Hide password input if email verification fails
-    //     }
-    // };
+    const handleVerificationResponse = (status) => {
+        if (status === 'new_password') {
+            setShowNewPasswordForm(true); // Show new password form
+        } else if (status === 'login') {
+            setShowPasswordInput(true); // Show login password input
+        } else {
+            setShowPasswordInput(false);
+            setShowNewPasswordForm(false); // Handle error or other cases
+        }
+    };
 
-    // Handle password submission
+    const handleNewPasswordSubmit = (event) => {
+        event.preventDefault();
+        if (newPassword !== confirmPassword) {
+            alert("Passwords do not match");
+            return;
+        }
+
+        // Call the password update API
+        const passwordData = { email, password: newPassword, password_confirmation: confirmPassword };
+        dispatch(updatePassword(passwordData, handlePasswordUpdated));
+    };
+
+    const handlePasswordUpdated = (success) => {
+        console.log("password update", success);
+        if (success) {
+            router.history.push('/login'); // Redirect to the login page
+        }
+    };
+
     const handlePasswordSubmit = (event, values) => {
         event.preventDefault();
-        console.log('Submitting password:', values.password); // Debugging password submit
         dispatch(checkLogin(values, router.navigate));
     };
 
@@ -81,7 +96,7 @@ const Login = ({ router }) => {
                                                 <Alert color="danger">{loginError}</Alert>
                                             )}
                                             <div className="p-2 mt-5">
-                                                <AvForm onValidSubmit={showPasswordInput ? handlePasswordSubmit : handleEmailSubmit}>
+                                                <AvForm onValidSubmit={showNewPasswordForm ? handleNewPasswordSubmit : (showPasswordInput ? handlePasswordSubmit : handleEmailSubmit)}>
                                                     <div className="auth-form-group-custom mb-4">
                                                         <Label htmlFor="email">Email</Label>
                                                         <AvField
@@ -94,6 +109,30 @@ const Login = ({ router }) => {
                                                             placeholder="Enter email"
                                                         />
                                                     </div>
+                                                    {showNewPasswordForm && (
+                                                        <>
+                                                            <div className="auth-form-group-custom mb-4">
+                                                                <Label htmlFor="newPassword">New Password</Label>
+                                                                <AvField
+                                                                    name="newPassword"
+                                                                    type="password"
+                                                                    validate={{ required: { value: true, errorMessage: 'Please enter new password' } }}
+                                                                    placeholder="Enter new password"
+                                                                    onChange={(e) => setNewPassword(e.target.value)}
+                                                                />
+                                                            </div>
+                                                            <div className="auth-form-group-custom mb-4">
+                                                                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                                                                <AvField
+                                                                    name="confirmPassword"
+                                                                    type="password"
+                                                                    validate={{ required: { value: true, errorMessage: 'Please confirm password' } }}
+                                                                    placeholder="Confirm new password"
+                                                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                                                />
+                                                            </div>
+                                                        </>
+                                                    )}
                                                     {showPasswordInput && (
                                                         <div className="auth-form-group-custom mb-4">
                                                             <Label htmlFor="password">Password</Label>
@@ -107,7 +146,7 @@ const Login = ({ router }) => {
                                                     )}
                                                     <div className="mt-4 text-center">
                                                         <Button color="primary" className="w-md waves-effect waves-light" type="submit">
-                                                            {showPasswordInput ? "Log In" : "Verify Email"}
+                                                            {showNewPasswordForm ? "Set Password" : (showPasswordInput ? "Log In" : "Verify Email")}
                                                         </Button>
                                                     </div>
                                                 </AvForm>
