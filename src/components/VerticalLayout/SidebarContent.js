@@ -96,23 +96,20 @@ class SidebarContent extends Component {
   };
 
   removeActiveClass = () => {
-    var ul = document.getElementById("side-menu");
-    var items = ul.getElementsByTagName("a");
-    for (var i = 0; i < items.length; ++i) {
-      items[i].classList.remove("active");
-      items[i].parentElement?.classList.remove("mm-active");
-      items[i].parentElement?.parentElement?.classList.remove("mm-show");
-    }
+    const items = document.querySelectorAll("#side-menu a");
+    items.forEach(item => {
+      item.classList.remove("active");
+      item.parentElement?.classList.remove("mm-active");
+      item.parentElement?.querySelector(".sub-menu")?.classList.remove("mm-show");
+    });
   };
-
+  
   handleMenuClick = (event, path) => {
     event.preventDefault(); // Prevent default click behavior
-    this.setState({ pathName: path }, () => {
-      this.initMenu(); // Reinitialize menu for active state
-    });
-
-    // Navigate to the route
-    this.props.router.navigate(path);
+    this.props.router.navigate(path); // Navigate to route
+  
+    // Activate the clicked item
+    this.activateParentDropdown(event.currentTarget);
   };
 
   render() {
