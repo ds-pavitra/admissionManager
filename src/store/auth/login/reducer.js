@@ -1,45 +1,60 @@
-import { CHECK_LOGIN, LOGIN_USER_SUCCESSFUL, API_ERROR, LOGOUT_USER, LOGOUT_USER_SUCCESS } from './actionTypes';
+import { CHECK_LOGIN, LOGIN_USER_SUCCESSFUL, API_ERROR, LOGOUT_USER, LOGOUT_USER_SUCCESS, VERIFY_EMAIL, VERIFY_EMAIL_SUCCESS, VERIFY_EMAIL_FAILURE } from './actionTypes';
 
 const initialState = {
-    loginError: "aaa", message: null, loading: false
-}
+    loginError: null,
+    message: null,
+    loading: false,
+    emailVerified: false
+};
 
 const login = (state = initialState, action) => {
     switch (action.type) {
+        case VERIFY_EMAIL:
+            return {
+                ...state,
+                loading: true,
+                emailVerified: false
+            };
+        case VERIFY_EMAIL_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                emailVerified: true
+            };
+        case VERIFY_EMAIL_FAILURE:
+            return {
+                ...state,
+                loading: false,
+                emailVerified: false,
+                loginError: action.payload
+            };
         case CHECK_LOGIN:
-            state = {
+            return {
                 ...state,
                 loading: true
-            }
-            break;
+            };
         case LOGIN_USER_SUCCESSFUL:
-            state = {
+            return {
                 ...state,
                 loading: false
-            }
-            break;
-
+            };
         case LOGOUT_USER:
-            state = { ...state };
-            break;
-
+            return {
+                ...state
+            };
         case LOGOUT_USER_SUCCESS:
-            state = { ...state };
-            break;
-            
+            return {
+                ...state
+            };
         case API_ERROR:
-            state = {
+            return {
                 ...state,
                 loading: false,
                 loginError: action.payload
-            }
-            break;
-
+            };
         default:
-            state = { ...state };
-            break;
+            return state;
     }
-    return state;
-}
+};
 
 export default login;

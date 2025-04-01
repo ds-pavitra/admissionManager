@@ -1,54 +1,58 @@
 import { takeEvery, fork, put, all, call } from 'redux-saga/effects';
 
 // Login Redux States
-import { CHECK_LOGIN, LOGOUT_USER } from './actionTypes';
-import { apiError, loginUserSuccessful, logoutUserSuccess } from './actions';
+import { CHECK_LOGIN, LOGOUT_USER, VERIFY_EMAIL } from './actionTypes';
+import { apiError, loginUserSuccessful, logoutUserSuccess, verifyEmailSuccess, verifyEmailFailure } from './actions';
 
-// AUTH related methods
-// import { postLogin } from '../../../helpers/fackBackend_Helper';
 import { apiBaseUrl, apiRequestAsync } from "../../../common/data/userData";
 
 const loginUrl = `${apiBaseUrl}/login`;
+const verifyEmailUrl = `${apiBaseUrl}/email/check`;
 
-//If user is login then dispatch redux action's are directly from here.
-function* loginUser({ payload: { user, history } }) {
+// Verify Email Saga
+function* verifyEmail({ payload: { email, callback } }) {
     try {
-        const response = yield call(loginWithEmailPasswordAsync, user.email, user.password);
-        
+        const response = yield call(apiRequestAsync, 'POST', verifyEmailUrl, { email });
+
         if (response.status === 200) {
-            localStorage.setItem("authUser", JSON.stringify(response));
-            yield put(loginUserSuccessful(response));
-            history('/dashboard'); // Redirect on success
+            yield put(verifyEmailSuccess());
+            callback(); // Proceed to show password input on success
         } else {
-            yield put(apiError(response.message || "Login failed. Please try again."));
+            yield put(verifyEmailFailure(response.message || "Email verification failed."));
         }
     } catch (error) {
-        let errorMessage = "Something went wrong. Please try again.";
-        
-        if (error.response && error.response.data && error.response.data.message) {
-            errorMessage = error.response.data.message;
-        } else if (error.message) {
-            errorMessage = error.message;
-        }
-
-        yield put(apiError(errorMessage)); // Dispatch a readable error message
+        yield put(verifyEmailFailure(error.message || "Error verifying email."));
     }
 }
 
+function* loginUser({ payload: { user, history } }) {
+    try {
+        const response = yield call(apiRequestAsync, 'POST', loginUrl, { email: user.email, password: user.password });
 
-const loginWithEmailPasswordAsync = (email, password) => {
-    return apiRequestAsync('POST', loginUrl, { email, password });
-};
-
+        if (response.status === 200) {
+            localStorage.setItem("authUser", JSON.stringify(response));
+            yield put(loginUserSuccessful(response));
+            history('/dashboard');
+        } else {
+            yield put(apiError(response.message || "Login failed."));
+        }
+    } catch (error) {
+        yield put(apiError(error.message || "Error during login."));
+    }
+}
 
 function* logoutUser({ payload: { history } }) {
     try {
         localStorage.removeItem("authUser");
-        logoutUserSuccess()
+        yield put(logoutUserSuccess());
         history('/login');
     } catch (error) {
-        yield put(apiError(error));
+        yield put(apiError(error.message || "Logout failed."));
     }
+}
+
+export function* watchVerifyEmail() {
+    yield takeEvery(VERIFY_EMAIL, verifyEmail);
 }
 
 export function* watchUserLogin() {
@@ -61,6 +65,7 @@ export function* watchUserLogout() {
 
 function* loginSaga() {
     yield all([
+        fork(watchVerifyEmail),
         fork(watchUserLogin),
         fork(watchUserLogout),
     ]);

@@ -1,4 +1,4 @@
-import { CHECK_LOGIN, LOGIN_USER_SUCCESSFUL, API_ERROR,LOGOUT_USER, LOGOUT_USER_SUCCESS } from './actionTypes';
+import { CHECK_LOGIN, LOGIN_USER_SUCCESSFUL, API_ERROR,LOGOUT_USER, LOGOUT_USER_SUCCESS,  VERIFY_EMAIL, VERIFY_EMAIL_SUCCESS, VERIFY_EMAIL_FAILURE } from './actionTypes';
 
 export const checkLogin = (user, history) => {
     return {
@@ -34,3 +34,24 @@ export const logoutUserSuccess = () => {
         payload: {}
     }
 }
+
+
+export const verifyEmail = (email, callback) => {
+    return {
+        type: VERIFY_EMAIL,
+        payload: { email, callback }
+    };
+};
+
+export const verifyEmailSuccess = () => {
+    return {
+        type: VERIFY_EMAIL_SUCCESS,
+    };
+};
+
+export const verifyEmailFailure = (error) => {
+    return {
+        type: VERIFY_EMAIL_FAILURE,
+        payload: error
+    };
+};
