@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
 
 // actions
-import { checkLogin, apiError, verifyEmail, updatePassword } from '../../store/actions';
+import { checkLogin, apiError, verifyEmail } from '../../store/actions';
 
 // import images
 import cubicleLogo from "../../assets/images/cubicleLogo.png";
@@ -58,18 +58,26 @@ const Login = ({ router }) => {
             alert("Passwords do not match");
             return;
         }
-
-        // Call the password update API
-        const passwordData = { email, password: newPassword, password_confirmation: confirmPassword };
-        dispatch(updatePassword(passwordData, handlePasswordUpdated));
+    
+        // Corrected dispatch format
+        dispatch({
+            type: "UPDATE_PASSWORD",
+            payload: {
+                passwordData: { email, password: newPassword, password_confirmation: confirmPassword },
+                callback: handlePasswordUpdated,
+            },
+        });
     };
+    
 
     const handlePasswordUpdated = (success) => {
-        console.log("password update", success);
-        if (success) {
-            router.history.push('/login'); // Redirect to the login page
+        if (success === true) {
+            window.location.href = "/manager/login";// Redirect to login
+        } else {
+            console.log("Password update failed or unexpected response");
         }
     };
+    
 
     const handlePasswordSubmit = (event, values) => {
         event.preventDefault();

@@ -16,8 +16,6 @@ function* verifyEmail({ payload: { email, callback } }) {
         const response = yield call(apiRequestAsync, 'POST', verifyEmailUrl, { email });
 
         if (response.status === 200) {
-            console.log('Email exists:', response.result);
-
             if (response.result.user_status === 0) {
                 // If user_status is 0, show the new password form
                 yield put(verifyEmailSuccess());
@@ -43,20 +41,21 @@ function* verifyEmail({ payload: { email, callback } }) {
 // Update Password Saga
 function* updatePassword({ payload: { passwordData, callback } }) {
     try {
-        const response = yield call(apiRequestAsync, 'POST', updatePasswordUrl, passwordData);
 
+        const response = yield call(apiRequestAsync, 'POST', updatePasswordUrl, passwordData);
         if (response.status === 200) {
             yield put(updatePasswordSuccess());
-            callback(true); // On success, callback to redirect to login
+            callback(true); // ✅ Successful update
         } else {
             yield put(updatePasswordFailure(response.message || "Password update failed."));
-            callback(false); // On failure, handle the callback
+            callback(false); // ❌ Failure case
         }
     } catch (error) {
         yield put(updatePasswordFailure(error.message || "Error updating password."));
-        callback(false);
+        callback(false); // ❌ Error case
     }
 }
+
 
 // Login User Saga
 function* loginUser({ payload: { user, history } }) {
